@@ -7,7 +7,7 @@
 
 #define MAX_INPUT 256
 
-// ── Menu principal ──
+/* Exibe o menu de opções */
 static void exibir_menu(void) {
     printf("\n===== Sistema de Gerenciamento de Partidas =====\n");
     printf("  1 - Consultar time\n");
@@ -21,24 +21,33 @@ static void exibir_menu(void) {
     printf("Opcao: ");
 }
 
+/* Ponto de entrada do sistema */
 int main(int argc, char *argv[]) {
     char *arq_times = "times.csv";
     char *arq_partidas = "partidas_completo.csv";
 
-    // Se houver um argumento, ele será o arquivo de partidas
-    if (argc > 1) arq_partidas = argv[1];
+    /* Permite passar um arquivo de partidas customizado via CLI */
+    if (argc > 1) {
+        arq_partidas = argv[1];
+    }
 
+    /* Cria e carrega o banco de times */
     BDTimes *bdt = bdt_criar();
-    if (!bdt || !bdt_carregar(bdt, arq_times)) {
+    if (bdt == NULL || bdt_carregar(bdt, arq_times) == 0) {
         printf("Erro ao carregar times de \"%s\".\n", arq_times);
-        if (bdt) bdt_free(bdt);
+        if (bdt != NULL) {
+            bdt_free(bdt);
+        }
         return 1;
     }
 
+    /* Cria e carrega o banco de partidas */
     BDPartidas *bdp = bdp_criar();
-    if (!bdp || !bdp_carregar(bdp, arq_partidas, bdt)) {
+    if (bdp == NULL || bdp_carregar(bdp, arq_partidas, bdt) == 0) {
         printf("Erro ao carregar partidas de \"%s\".\n", arq_partidas);
-        if (bdp) bdp_free(bdp);
+        if (bdp != NULL) {
+            bdp_free(bdp);
+        }
         bdt_free(bdt);
         return 1;
     }
@@ -47,29 +56,24 @@ int main(int argc, char *argv[]) {
     char entrada[MAX_INPUT];
     int rodando = 1;
 
+    /* Loop principal do menu */
     while (rodando) {
         exibir_menu();
         
-        // Se a leitura falhar, encerramos o loop
         if (scanf(" %c", &opcao) != 1) {
             rodando = 0;
         }
         
         if (rodando) {
-            // Opção: SAIR
             if (opcao == 'Q' || opcao == 'q') {
                 printf("Encerrando o sistema. Ate logo!\n");
                 rodando = 0;
             } 
-            
-            // Opção 1: CONSULTAR TIME
             else if (opcao == '1') {
                 printf("\nDigite o nome ou prefixo do time: ");
                 scanf("%s", entrada);
                 bdt_consultar_times(bdt, entrada);
             } 
-            
-            // Opção 2: CONSULTAR PARTIDAS
             else if (opcao == '2') {
                 int modo;
                 printf("\nEscolha o modo de consulta:\n");
@@ -78,35 +82,32 @@ int main(int argc, char *argv[]) {
                 printf("3 - Por time mandante ou visitante\n");
                 printf("4 - Retornar ao menu principal\n");
                 if (scanf("%d", &modo) == 1) {
-                    if (modo == 4) continue;
-                    printf("Digite o nome: ");
-                    scanf("%s", entrada);
-                    bdp_consultar_partidas(bdp, bdt, modo, entrada);
+                    if (modo != 4) {
+                        printf("Digite o nome: ");
+                        scanf("%s", entrada);
+                        bdp_consultar_partidas(bdp, bdt, modo, entrada);
+                    }
                 } else {
                     while (getchar() != '\n'); 
                     printf("Opcao invalida.\n");
                 }
             } 
-            
-            // Opção 6: IMPRIMIR TABELA
             else if (opcao == '6') {
                 printf("\nImprimindo classificacao...\n");
                 bdt_imprimir_tabela(bdt);
             } 
-            
-            // Opções desabilitadas
             else if (opcao >= '3' && opcao <= '5') {
                 printf("Funcionalidade ainda nao implementada.\n");
             } 
-            
-            // Opção Inválida
             else {
                 printf("Opcao invalida. Tente novamente.\n");
             }
         }
     }
 
+    /* Libera toda a memória antes de encerrar */
     bdp_free(bdp);
     bdt_free(bdt);
+    
     return 0;
 }

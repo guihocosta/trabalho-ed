@@ -4,7 +4,7 @@
 #include "partida.h"
 #include "utils.h"
 
-// Estrutura que representa uma partida
+/* Estrutura que guarda os dados de um jogo */
 struct partida {
     int id;
     int time1_id;
@@ -13,9 +13,12 @@ struct partida {
     int gols2;
 };
 
+/* Aloca e inicializa uma partida */
 Partida *partida_criar(int id, int time1_id, int time2_id, int gols1, int gols2) {
     Partida *p = (Partida*)malloc(sizeof(Partida));
-    if (p == NULL) return NULL;
+    if (p == NULL) {
+        return NULL;
+    }
     
     p->id = id;
     p->time1_id = time1_id;
@@ -26,18 +29,33 @@ Partida *partida_criar(int id, int time1_id, int time2_id, int gols1, int gols2)
     return p;
 }
 
+/* Libera memória da struct partida */
 void partida_free(Partida *p) {
-    if (p != NULL) free(p);
+    if (p != NULL) {
+        free(p);
+    }
 }
 
-int partida_get_id(Partida *p) { return p ? p->id : -1; }
-int partida_get_time1(Partida *p) { return p ? p->time1_id : -1; }
-int partida_get_time2(Partida *p) { return p ? p->time2_id : -1; }
-int partida_get_gols1(Partida *p) { return p ? p->gols1 : 0; }
-int partida_get_gols2(Partida *p) { return p ? p->gols2 : 0; }
+/* Getters usados por outros módulos */
+int partida_get_time1(Partida *p) {
+    if (p == NULL) {
+        return -1;
+    }
+    return p->time1_id;
+}
 
+int partida_get_time2(Partida *p) {
+    if (p == NULL) {
+        return -1;
+    }
+    return p->time2_id;
+}
+
+/* Imprime placar formatado buscando nomes no banco de times */
 void partida_imprimir(Partida *p, BDTimes *bdt, int largura_nome) {
-    if (p == NULL || bdt == NULL) return;
+    if (p == NULL || bdt == NULL) {
+        return;
+    }
 
     Time *t1 = bdt_buscar_por_id(bdt, p->time1_id);
     Time *t2 = bdt_buscar_por_id(bdt, p->time2_id);
@@ -45,17 +63,23 @@ void partida_imprimir(Partida *p, BDTimes *bdt, int largura_nome) {
     char *nome1 = time_get_nome(t1);
     char *nome2 = time_get_nome(t2);
 
-    // ID da partida
+    /* Se o time não for encontrado, usa "Desconhecido" */
+    if (nome1 == NULL) {
+        nome1 = "Desconhecido";
+    }
+    if (nome2 == NULL) {
+        nome2 = "Desconhecido";
+    }
+
     printf("%-4d ", p->id);
 
-    // Nome do Mandante + Espaços
-    printf("%s", nome1 ? nome1 : "Desconhecido");
+    printf("%s", nome1);
     int i, tam1 = tamanho_texto(nome1);
-    for (i = tam1; i < largura_nome; i++) printf(" ");
+    for (i = tam1; i < largura_nome; i++) {
+        printf(" ");
+    }
 
-    // Placar
     printf(" %d x %-d ", p->gols1, p->gols2);
 
-    // Nome do Visitante
-    printf("%s\n", nome2 ? nome2 : "Desconhecido");
+    printf("%s\n", nome2);
 }

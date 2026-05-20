@@ -81,10 +81,9 @@ Solicita um nome ou prefixo e exibe as estatísticas de todos os times correspon
 ```
 Digite o nome ou prefixo do time: Se
 
-ID   Time           V   E   D   GM   GS    S   PG
---------------------------------------------------
-2    SemCTRL        6   2   3   26   19    7   20
-5    SeQueLas       4   2   4   24   26   -2   14
+ID   Time              V   E   D   GM   GS    S   PG
+2    SemCTRL          11   2   5   43   34    9   35
+5    SeQueLas          7   3   8   50   49    1   24
 ```
 
 ### Opção 2 — Consultar partidas
@@ -101,15 +100,14 @@ Opcao: 3
 
 Digite o nome: RUSTicos
 
-ID   Time1        Time2
---------------------------------------
-5: SeQueLas 5 x 2 RUSTicos
-17: PYthons 5 x 5 RUSTicos
-27: RUSTicos 3 x 4 SemCTRL
-28: RUSTicos 2 x 4 NETunos
-35: RUSTicos 1 x 5 ESCorpioes
-37: REACTivos 4 x 0 RUSTicos
-43: NETunos 3 x 1 RUSTicos
+ID   Time1           Time2          
+5    SeQueLas        5 x 2 RUSTicos
+17   PYthons         5 x 5 RUSTicos
+27   RUSTicos        3 x 4 SemCTRL
+28   RUSTicos        2 x 4 NETunos
+35   RUSTicos        1 x 5 ESCorpiões
+37   REACTivos       4 x 0 RUSTicos
+43   NETunos         3 x 1 RUSTicos
 ```
 
 ### Opção 6 — Imprimir tabela de classificação
@@ -118,11 +116,11 @@ Exibe todos os times ordenados por ID com suas estatísticas acumuladas.
 
 ```
 Imprimindo classificacao...
+
 ID   Time            V   E   D   GM   GS    S   PG
---------------------------------------------------
-0    JAVAlis         6   2   1   24   12   12   20
-1    ESCorpioes      7   0   1   25    5   20   21
-2    SemCTRL         6   2   3   26   19    7   20
+0    JAVAlis         13  3   2   58   30   28   42
+1    ESCorpiões      10  2   6   55   39   16   32
+2    SemCTRL         11  2   5   43   34    9   35
 ...
 ```
 
@@ -160,6 +158,7 @@ Gerencia a coleção de todos os times. Carrega os dados do arquivo `times.csv` 
 | `bdt_buscar_por_id` | Retorna o time com o ID informado |
 | `bdt_buscar_por_nome` | Retorna o primeiro time cujo nome bate com o prefixo |
 | `bdt_imprimir_tabela` | Imprime todos os times formatados |
+| `bdt_get_largura_nome_max` | Retorna a maior largura de nome para alinhamento |
 | `bdt_get_qtd` | Retorna a quantidade de times carregados |
 | `bdt_get_time_idx` | Retorna o time pelo índice no vetor interno |
 | `bdt_free` | Libera toda a memória da coleção |
@@ -180,13 +179,13 @@ Representa um jogo entre dois times, encapsulando ID da partida, IDs dos times e
 
 ### `BDPartidas` (`bd_partidas.h` / `bd_partidas.c`)
 
-Gerencia a coleção de todas as partidas. Ao carregar `partidas.csv`, além de armazenar cada partida, já repassa os resultados ao `BDTimes` via `time_adicionar_resultados`, mantendo as estatísticas sempre atualizadas. Fornece consulta por prefixo com filtragem por mandante, visitante ou ambos.
+Gerencia a coleção de todas as partidas. Ao carregar as partidas, além de armazenar cada partida, já repassa os resultados ao `BDTimes` via `time_adicionar_resultados`, mantendo as estatísticas sempre atualizadas. Fornece consulta por prefixo com filtragem por mandante, visitante ou ambos.
 
 | Função | Descrição |
 |---|---|
 | `bdp_criar` | Aloca o gerenciador |
-| `bdp_carregar` | Lê `partidas.csv`, cria partidas e atualiza os times |
-| `bdp_consultar_partidas` | Filtra e imprime partidas pelo termo e modo informados |
+| `bdp_carregar` | Lê o CSV de partidas, cria partidas e atualiza os times |
+| `bdp_consultar_partidas` | Filtra e imprime partidas pelo termo e modo (1, 2 ou 3) |
 | `bdp_free` | Libera toda a memória da coleção |
 
 ---
@@ -197,19 +196,20 @@ Módulo auxiliar com funções de uso geral.
 
 | Função | Descrição |
 |---|---|
-| `is_prefixo` | Verifica se uma string começa com o termo informado |
+| `is_prefixo` | Verifica se uma string começa com o termo (case-insensitive) |
+| `tamanho_texto` | Retorna o número de caracteres visíveis (UTF-8) |
 
 ---
 
 ## Principais decisões de implementação
 
-- **Vetor estático interno nos BDs:** `BDTimes` e `BDPartidas` utilizam vetores estáticos de tamanho pré-definido (10 times, 45 partidas), garantindo simplicidade e previsibilidade de consumo de memória, conforme sugerido pela especificação.
+- **Vetor estático interno nos BDs:** `BDTimes` e `BDPartidas` utilizam vetores estáticos de tamanho pré-definido (10 times, 100 partidas), garantindo simplicidade e previsibilidade de consumo de memória.
 
 - **Atualização de estatísticas na carga:** as estatísticas dos times são calculadas durante o carregamento das partidas em `bdp_carregar`, evitando reprocessamento a cada consulta. Pontos ganhos e saldo de gols são derivados sob demanda.
 
-- **Busca por prefixo centralizada:** a função `is_prefixo` em `utils.c` centraliza a lógica de comparação, reutilizada tanto na consulta de times (`main.c`) quanto na de partidas (`bd_partidas.c`).
+- **Busca por prefixo centralizada:** a função `is_prefixo` em `utils.c` centraliza a lógica de comparação, reutilizada tanto na consulta de times quanto na de partidas.
 
-- **Filtragem de partidas por modo:** o modo de busca (mandante=`M:`, visitante=`V:`, ou ambos sem prefixo) é codificado no início do termo passado a `bdp_consultar_partidas`, mantendo a interface pública com apenas um parâmetro de busca e isolando a lógica de filtragem dentro do TAD.
+- **Alinhamento dinâmico:** as tabelas calculam a largura necessária baseada no maior nome de time presente no banco, garantindo que a visualização seja limpa independentemente do tamanho dos nomes.
 
 - **Separação de responsabilidades:** cada módulo tem responsabilidade única — `Time` e `Partida` modelam entidades individuais; `BDTimes` e `BDPartidas` gerenciam as coleções; `utils` concentra funções genéricas; `main.c` cuida exclusivamente do fluxo de interação com o usuário.
 
