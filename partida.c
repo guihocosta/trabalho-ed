@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "partida.h"
+#include "utils.h"
 
 // Estrutura que representa uma partida
 struct partida {
@@ -34,7 +36,7 @@ int partida_get_time2(Partida *p) { return p ? p->time2_id : -1; }
 int partida_get_gols1(Partida *p) { return p ? p->gols1 : 0; }
 int partida_get_gols2(Partida *p) { return p ? p->gols2 : 0; }
 
-void partida_imprimir(Partida *p, BDTimes *bdt) {
+void partida_imprimir(Partida *p, BDTimes *bdt, int largura_nome) {
     if (p == NULL || bdt == NULL) return;
 
     Time *t1 = bdt_buscar_por_id(bdt, p->time1_id);
@@ -43,11 +45,17 @@ void partida_imprimir(Partida *p, BDTimes *bdt) {
     char *nome1 = time_get_nome(t1);
     char *nome2 = time_get_nome(t2);
 
-    printf("%d: %s %d x %d %s\n", 
-        p->id, 
-        nome1 ? nome1 : "Desconhecido", 
-        p->gols1, 
-        p->gols2, 
-        nome2 ? nome2 : "Desconhecido"
-    );
+    // ID da partida
+    printf("%-4d ", p->id);
+
+    // Nome do Mandante + Espaços
+    printf("%s", nome1 ? nome1 : "Desconhecido");
+    int i, tam1 = tamanho_texto(nome1);
+    for (i = tam1; i < largura_nome; i++) printf(" ");
+
+    // Placar
+    printf(" %d x %-d ", p->gols1, p->gols2);
+
+    // Nome do Visitante
+    printf("%s\n", nome2 ? nome2 : "Desconhecido");
 }

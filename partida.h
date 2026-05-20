@@ -14,7 +14,7 @@ int partida_get_time2(Partida *p);
 int partida_get_gols1(Partida *p);
 int partida_get_gols2(Partida *p);
 
-// Imprime a partida formatada
-void partida_imprimir(Partida *p, BDTimes *bdt);
+// Imprime a partida formatada com larguras dinâmicas
+void partida_imprimir(Partida *p, BDTimes *bdt, int largura_nome);
 
 #endif
