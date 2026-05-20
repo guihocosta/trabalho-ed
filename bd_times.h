@@ -13,6 +13,7 @@ Time *bdt_buscar_por_id(BDTimes *bdt, int id);
 Time *bdt_buscar_por_nome(BDTimes *bdt, const char *nome);
 
 void bdt_imprimir_tabela(BDTimes *bdt);
+void bdt_consultar_times(BDTimes *bdt, const char *termo);
 
 int bdt_get_qtd(BDTimes *bdt);
 Time *bdt_get_time_idx(BDTimes *bdt, int idx);

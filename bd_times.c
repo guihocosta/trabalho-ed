@@ -95,14 +95,56 @@ Time *bdt_buscar_por_nome(BDTimes *bdt, const char *nome) {
     return NULL;
 }
 
+// Função interna para calcular a largura necessária para a coluna de nomes
+static int bdt_calcular_largura_nome(BDTimes *bdt) {
+    int max = 15; // Largura mínima
+    for (int i = 0; i < bdt->qtd; i++) {
+        int len = tamanho_texto(time_get_nome(bdt->times[i]));
+        if (len > max) max = len;
+    }
+    return max;
+}
+
 // Imprime a tabela de classificação delegando a impressão para o TAD Time
 void bdt_imprimir_tabela(BDTimes *bdt) {
     if (!bdt) return;
     
-    printf("ID\tTime\t\t\tV\tE\tD\tGM\tGS\tS\tPG\n");
-    int i;
-    for (i = 0; i < bdt->qtd; i++) {
-        time_imprimir(bdt->times[i]);
+    int w = bdt_calcular_largura_nome(bdt);
+
+    printf("\n%-4s %-*s %3s %3s %3s %4s %4s %4s %4s\n",
+           "ID", w, "Time", "V", "E", "D", "GM", "GS", "S", "PG");
+    
+    // Imprime a linha separadora com o tamanho correto
+    for (int i = 0; i < w + 42; i++) printf("-");
+    printf("\n");
+
+    for (int i = 0; i < bdt->qtd; i++) {
+        time_imprimir(bdt->times[i], w);
+    }
+}
+
+void bdt_consultar_times(BDTimes *bdt, const char *termo) {
+    if (!bdt || !termo) return;
+
+    int w = bdt_calcular_largura_nome(bdt);
+    int encontrou = 0;
+
+    printf("\n%-4s %-*s %3s %3s %3s %4s %4s %4s %4s\n",
+           "ID", w, "Time", "V", "E", "D", "GM", "GS", "S", "PG");
+    
+    for (int i = 0; i < w + 42; i++) printf("-");
+    printf("\n");
+
+    for (int i = 0; i < bdt->qtd; i++) {
+        char *nome = time_get_nome(bdt->times[i]);
+        if (is_prefixo(nome, termo)) {
+            time_imprimir(bdt->times[i], w);
+            encontrou = 1;
+        }
+    }
+
+    if (!encontrou) {
+        printf("Erro: Nenhum time encontrado com o prefixo \"%s\".\n", termo);
     }
 }
 
