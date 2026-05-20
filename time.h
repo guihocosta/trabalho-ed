@@ -27,7 +27,7 @@ int time_get_gols_sofridos(Time *t);
 // Função para atualizar os dados após uma partida
 void time_adicionar_resultados(Time *t, int gols_pro, int gols_contra);
 
-// Imprime os dados do time formatados para a tabela
-void time_imprimir(Time *t);
+// Imprime os dados do time formatados para a tabela com largura dinâmica para o nome
+void time_imprimir(Time *t, int largura_nome);
 
 #endif

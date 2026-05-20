@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "time.h"
+#include "utils.h"
 
 // Estrutura que representa um time e suas estatísticas
 struct time {
@@ -74,12 +75,20 @@ void time_adicionar_resultados(Time *t, int gols_pro, int gols_contra) {
     }
 }
 
-void time_imprimir(Time *t) {
+void time_imprimir(Time *t, int largura_nome) {
     if (t == NULL) return;
 
-    printf("%-4d %-12s %3d %3d %3d %4d %4d %4d %4d\n",
-        t->id,
-        t->nome,
+    // Imprime ID e o Nome do time
+    printf("%-4d %s", t->id, t->nome);
+    
+    // Completa com espaços até a largura da coluna
+    int i, tam = tamanho_texto(t->nome);
+    for (i = tam; i < largura_nome; i++) {
+        printf(" ");
+    }
+
+    // Imprime o restante formatado
+    printf(" %3d %3d %3d %4d %4d %4d %4d\n",
         t->vitorias,
         t->empates,
         t->derrotas,
