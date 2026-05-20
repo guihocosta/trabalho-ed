@@ -25,8 +25,8 @@ int main(int argc, char *argv[]) {
     char *arq_times = "times.csv";
     char *arq_partidas = "partidas_completo.csv";
 
-    if (argc > 1) arq_times = argv[1];
-    if (argc > 2) arq_partidas = argv[2];
+    // Se houver um argumento, ele será o arquivo de partidas
+    if (argc > 1) arq_partidas = argv[1];
 
     BDTimes *bdt = bdt_criar();
     if (!bdt || !bdt_carregar(bdt, arq_times)) {
