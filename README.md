@@ -4,10 +4,11 @@ Sistema de gerenciamento de partidas e classificação de um campeonato de futeb
 
 ---
 
-## Requisitos
-
-- GCC 11 ou superior
-- `make`
+> **Disciplina:** Estrutura de Dados  
+> **Período:** 3º Período – Bacharelado em Sistemas de Informação  
+> **Instituição:** IFES – Campus Serra  
+> **Professor:** Thiago M. Paixão  
+> **Alunos:** Luan Otoni e Guilherme Omena
 
 ---
 
@@ -32,16 +33,34 @@ Sistema de gerenciamento de partidas e classificação de um campeonato de futeb
 
 ## Como compilar e executar
 
-### Compilar e executar de uma vez
-
-```bash
-make run
-```
-
-### Apenas compilar
+### Compilar
 
 ```bash
 make compile
+```
+
+### Executar
+
+O sistema aceita o arquivo de partidas como argumento opcional. Se nenhum for passado, usa `partidas_completo.csv` por padrão.
+
+```bash
+# Usando o padrão (partidas_completo.csv)
+./campeonato
+
+# Cenário 1 — Campeonato vazio
+./campeonato partidas_vazio.csv
+
+# Cenário 2 — Campeonato em andamento
+./campeonato partidas_parcial.csv
+
+# Cenário 3 — Campeonato finalizado
+./campeonato partidas_completo.csv
+```
+
+### Compilar e executar de uma vez (cenário padrão)
+
+```bash
+make run
 ```
 
 ### Limpar arquivos gerados
@@ -49,12 +68,6 @@ make compile
 ```bash
 make clean
 ```
-
----
-
-## Arquivos de dados
-
-O sistema utiliza os arquivos CSV do repositório para carregar os dados de times e partidas na inicialização.
 
 ---
 
@@ -116,7 +129,6 @@ Exibe todos os times ordenados por ID com suas estatísticas acumuladas.
 
 ```
 Imprimindo classificacao...
-
 ID   Time            V   E   D   GM   GS    S   PG
 0    JAVAlis         13  3   2   58   30   28   42
 1    ESCorpiões      10  2   6   55   39   16   32
@@ -157,6 +169,7 @@ Gerencia a coleção de todos os times. Carrega os dados do arquivo `times.csv` 
 | `bdt_carregar` | Lê `times.csv` e popula a coleção |
 | `bdt_buscar_por_id` | Retorna o time com o ID informado |
 | `bdt_buscar_por_nome` | Retorna o primeiro time cujo nome bate com o prefixo |
+| `bdt_consultar_times` | Busca e imprime todos os times que batem com o prefixo |
 | `bdt_imprimir_tabela` | Imprime todos os times formatados |
 | `bdt_get_largura_nome_max` | Retorna a maior largura de nome para alinhamento |
 | `bdt_get_qtd` | Retorna a quantidade de times carregados |
@@ -202,6 +215,8 @@ Módulo auxiliar com funções de uso geral.
 ---
 
 ## Principais decisões de implementação
+
+- **Arquivo de partidas via argumento:** o executável aceita o nome do arquivo de partidas como argumento (`./campeonato partidas_parcial.csv`), permitindo trocar de cenário de teste sem recompilar. Se nenhum argumento for passado, o padrão é `partidas_completo.csv`.
 
 - **Vetor estático interno nos BDs:** `BDTimes` e `BDPartidas` utilizam vetores estáticos de tamanho pré-definido (10 times, 100 partidas), garantindo simplicidade e previsibilidade de consumo de memória.
 
