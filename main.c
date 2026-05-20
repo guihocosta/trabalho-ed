@@ -5,96 +5,7 @@
 #include "bd_times.h"
 #include "bd_partidas.h"
 
-#define ARQUIVO_TIMES    "times.csv"
-#define ARQUIVO_PARTIDAS "bd_partidas.csv"
-#define MAX_INPUT        256
-
-// Limpa o buffer de entrada
-static void limpar_buffer(void) {
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
-}
-
-// Lê uma linha do stdin, removendo o '\n' final
-static void ler_linha(char *buf, int tamanho) {
-    if (fgets(buf, tamanho, stdin)) {
-        buf[strcspn(buf, "\n")] = '\0';
-    }
-}
-
-// ── Opção 1: Consultar time ──
-static void menu_consultar_time(BDTimes *bdt) {
-    char termo[MAX_INPUT];
-
-    printf("\nDigite o nome ou prefixo do time: ");
-    ler_linha(termo, sizeof(termo));
-
-    int qtd = bdt_get_qtd(bdt);
-    int encontrou = 0;
-
-    printf("\n%-4s %-12s %3s %3s %3s %4s %4s %4s %4s\n",
-           "ID", "Time", "V", "E", "D", "GM", "GS", "S", "PG");
-    printf("--------------------------------------------------\n");
-
-    for (int i = 0; i < qtd; i++) {
-        Time *t = bdt_get_time_idx(bdt, i);
-        if (t && strncasecmp(time_get_nome(t), termo, strlen(termo)) == 0) {
-            time_imprimir(t);
-            encontrou = 1;
-        }
-    }
-
-    if (!encontrou) {
-        printf("Nenhum time encontrado com o prefixo \"%s\".\n", termo);
-    }
-}
-
-// ── Opção 2: Consultar partidas ──
-static void menu_consultar_partidas(BDPartidas *bdp, BDTimes *bdt) {
-    int opcao;
-    char termo[MAX_INPUT];
-
-    printf("\nEscolha o modo de consulta:\n");
-    printf("  1 - Por time mandante\n");
-    printf("  2 - Por time visitante\n");
-    printf("  3 - Por time mandante ou visitante\n");
-    printf("  4 - Retornar ao menu principal\n");
-    printf("Opcao: ");
-
-    if (scanf("%d", &opcao) != 1) {
-        limpar_buffer();
-        printf("Entrada invalida.\n");
-        return;
-    }
-    limpar_buffer();
-
-    if (opcao == 4) return;
-
-    if (opcao < 1 || opcao > 3) {
-        printf("Opcao invalida.\n");
-        return;
-    }
-
-    printf("Digite o nome: ");
-    ler_linha(termo, sizeof(termo));
-
-    char termo_modo[MAX_INPUT + 4];
-    if (opcao == 1) {
-        snprintf(termo_modo, sizeof(termo_modo), "M:%s", termo);
-    } else if (opcao == 2) {
-        snprintf(termo_modo, sizeof(termo_modo), "V:%s", termo);
-    } else {
-        snprintf(termo_modo, sizeof(termo_modo), "%s", termo);
-    }
-
-    bdp_consultar_partidas(bdp, bdt, termo_modo);
-}
-
-// ── Opção 6: Imprimir tabela de classificação ──
-static void menu_imprimir_tabela(BDTimes *bdt) {
-    printf("\nImprimindo classificacao...\n");
-    bdt_imprimir_tabela(bdt);
-}
+#define MAX_INPUT 256
 
 // ── Menu principal ──
 static void exibir_menu(void) {
@@ -110,72 +21,86 @@ static void exibir_menu(void) {
     printf("Opcao: ");
 }
 
-int main(void) {
-    // Inicializa e carrega os TADs
+int main(int argc, char *argv[]) {
+    char *arq_times = "times.csv";
+    char *arq_partidas = "partidas_completo.csv";
+
+    if (argc > 1) arq_times = argv[1];
+    if (argc > 2) arq_partidas = argv[2];
+
     BDTimes *bdt = bdt_criar();
-    if (!bdt) {
-        fprintf(stderr, "Erro ao criar BDTimes.\n");
-        return EXIT_FAILURE;
-    }
-    if (!bdt_carregar(bdt, ARQUIVO_TIMES)) {
-        fprintf(stderr, "Erro ao carregar \"%s\".\n", ARQUIVO_TIMES);
-        bdt_free(bdt);
-        return EXIT_FAILURE;
+    if (!bdt || !bdt_carregar(bdt, arq_times)) {
+        printf("Erro ao carregar times de \"%s\".\n", arq_times);
+        if (bdt) bdt_free(bdt);
+        return 1;
     }
 
     BDPartidas *bdp = bdp_criar();
-    if (!bdp) {
-        fprintf(stderr, "Erro ao criar BDPartidas.\n");
+    if (!bdp || !bdp_carregar(bdp, arq_partidas, bdt)) {
+        printf("Erro ao carregar partidas de \"%s\".\n", arq_partidas);
+        if (bdp) bdp_free(bdp);
         bdt_free(bdt);
-        return EXIT_FAILURE;
-    }
-    if (!bdp_carregar(bdp, ARQUIVO_PARTIDAS, bdt)) {
-        fprintf(stderr, "Erro ao carregar \"%s\".\n", ARQUIVO_PARTIDAS);
-        bdp_free(bdp);
-        bdt_free(bdt);
-        return EXIT_FAILURE;
+        return 1;
     }
 
-    // Loop principal
+    char opcao;
     char entrada[MAX_INPUT];
     int rodando = 1;
 
     while (rodando) {
         exibir_menu();
-        ler_linha(entrada, sizeof(entrada));
-
-        if (strlen(entrada) == 0) continue;
-
-        char opcao = entrada[0];
-
-        switch (opcao) {
-            case '1':
-                menu_consultar_time(bdt);
-                break;
-            case '2':
-                menu_consultar_partidas(bdp, bdt);
-                break;
-            case '3':
-            case '4':
-            case '5':
-                printf("Funcionalidade ainda nao implementada.\n");
-                break;
-            case '6':
-                menu_imprimir_tabela(bdt);
-                break;
-            case 'Q':
-            case 'q':
+        
+        // Se a leitura falhar, encerramos o loop
+        if (scanf(" %c", &opcao) != 1) {
+            rodando = 0;
+        }
+        
+        if (rodando) {
+            // Opção: SAIR
+            if (opcao == 'Q' || opcao == 'q') {
                 printf("Encerrando o sistema. Ate logo!\n");
                 rodando = 0;
-                break;
-            default:
+            } 
+            
+            // Opção 1: CONSULTAR TIME
+            else if (opcao == '1') {
+                printf("\nDigite o nome ou prefixo do time: ");
+                scanf("%s", entrada);
+                bdt_consultar_times(bdt, entrada);
+            } 
+            
+            // Opção 2: CONSULTAR PARTIDAS
+            else if (opcao == '2') {
+                int modo;
+                printf("\nEscolha o modo (1-Mandante, 2-Visitante, 3-Ambos): ");
+                if (scanf("%d", &modo) == 1) {
+                    printf("Digite o nome ou prefixo: ");
+                    scanf("%s", entrada);
+                    bdp_consultar_partidas(bdp, bdt, modo, entrada);
+                } else {
+                    while (getchar() != '\n'); 
+                    printf("Opcao invalida.\n");
+                }
+            } 
+            
+            // Opção 6: IMPRIMIR TABELA
+            else if (opcao == '6') {
+                bdt_imprimir_tabela(bdt);
+            } 
+            
+            // Opções desabilitadas
+            else if (opcao >= '3' && opcao <= '5') {
+                printf("Funcionalidade ainda nao implementada.\n");
+            } 
+            
+            // Opção Inválida
+            else {
                 printf("Opcao invalida. Tente novamente.\n");
+            }
         }
     }
 
-    // Libera memória
     bdp_free(bdp);
     bdt_free(bdt);
-
-    return EXIT_SUCCESS;
+    return 0;
 }
