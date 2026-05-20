@@ -10,6 +10,6 @@ BDPartidas *bdp_criar(void);
 void bdp_free(BDPartidas *bdp);
 int bdp_carregar(BDPartidas *bdp, const char *arquivo, BDTimes *bdt);
 
-void bdp_consultar_partidas(BDPartidas *bdp, BDTimes *bdt, const char *termo);
+void bdp_consultar_partidas(BDPartidas *bdp, BDTimes *bdt, int modo, const char *termo);
 
 #endif

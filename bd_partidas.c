@@ -4,7 +4,7 @@
 #include "bd_partidas.h"
 #include "utils.h"
 
-#define MAX_PARTIDAS 45
+#define MAX_PARTIDAS 100
 
 // Estrutura que guarda as partidas
 struct bd_partidas {
@@ -63,22 +63,27 @@ int bdp_carregar(BDPartidas *bdp, const char *arquivo, BDTimes *bdt) {
     return 1;
 }
 
-void bdp_consultar_partidas(BDPartidas *bdp, BDTimes *bdt, const char *termo) {
-    if (bdp == NULL || bdt == NULL) return;
-
-    /* Interpreta prefixos de modo: "M:<nome>", "V:<nome>" ou "<nome>" (ambos) */
-    int modo = 3; /* 1=mandante, 2=visitante, 3=ambos */
-    const char *busca = termo;
-
-    if (termo != NULL) {
-        if (strncmp(termo, "M:", 2) == 0) { modo = 1; busca = termo + 2; }
-        else if (strncmp(termo, "V:", 2) == 0) { modo = 2; busca = termo + 2; }
+// Função auxiliar para largura do nome (reutilizada ou similar)
+static int bdp_calcular_largura_times(BDTimes *bdt) {
+    int max = 15;
+    int qtd = bdt_get_qtd(bdt);
+    for (int i = 0; i < qtd; i++) {
+        Time *t = bdt_get_time_idx(bdt, i);
+        int len = tamanho_texto(time_get_nome(t));
+        if (len > max) max = len;
     }
+    return max;
+}
+
+void bdp_consultar_partidas(BDPartidas *bdp, BDTimes *bdt, int modo, const char *busca) {
+    if (bdp == NULL || bdt == NULL || busca == NULL) return;
 
     int i, encontrou = 0;
+    int w = bdp_calcular_largura_times(bdt);
 
-    printf("\n%-4s %-12s %-12s\n", "ID", "Time1", "Time2");
-    printf("--------------------------------------\n");
+    printf("\n%-4s %-*s %-*s\n", "ID", w, "Mandante", w, "Visitante");
+    for (int i = 0; i < (w * 2) + 12; i++) printf("-");
+    printf("\n");
 
     for (i = 0; i < bdp->qtd; i++) {
         Partida *p = bdp->partidas[i];
@@ -90,18 +95,18 @@ void bdp_consultar_partidas(BDPartidas *bdp, BDTimes *bdt, const char *termo) {
         char *nome2 = time_get_nome(t2);
 
         int bate = 0;
-        if (busca == NULL) {
+        if (strlen(busca) == 0) {
             bate = 1;
-        } else if (modo == 1) {
+        } else if (modo == 1) { // Mandante
             bate = is_prefixo(nome1, busca);
-        } else if (modo == 2) {
+        } else if (modo == 2) { // Visitante
             bate = is_prefixo(nome2, busca);
-        } else {
+        } else { // Ambos
             bate = is_prefixo(nome1, busca) || is_prefixo(nome2, busca);
         }
 
         if (bate) {
-            partida_imprimir(p, bdt);
+            partida_imprimir(p, bdt, w);
             encontrou = 1;
         }
     }
