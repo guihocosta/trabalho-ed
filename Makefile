@@ -24,7 +24,7 @@ compile: $(TARGET)
 
 # Run the executable
 run: $(TARGET)
-	./$(TARGET)
+	./$(TARGET) times.csv partidas_completo.csv
 
 # Clean up
 clean:
