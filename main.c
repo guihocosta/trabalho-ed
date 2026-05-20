@@ -6,7 +6,7 @@
 #include "bd_partidas.h"
 
 #define ARQUIVO_TIMES    "times.csv"
-#define ARQUIVO_PARTIDAS "partidas_parcial.csv"
+#define ARQUIVO_PARTIDAS "bd_partidas.csv"
 #define MAX_INPUT        256
 
 // Limpa o buffer de entrada
@@ -34,7 +34,7 @@ static void menu_consultar_time(BDTimes *bdt) {
 
     printf("\n%-4s %-12s %3s %3s %3s %4s %4s %4s %4s\n",
            "ID", "Time", "V", "E", "D", "GM", "GS", "S", "PG");
-    printf("----------------------------------------------------\n");
+    printf("--------------------------------------------------\n");
 
     for (int i = 0; i < qtd; i++) {
         Time *t = bdt_get_time_idx(bdt, i);
@@ -111,7 +111,7 @@ static void exibir_menu(void) {
 }
 
 int main(void) {
-    // Inicializa e carrega os TADs 
+    // Inicializa e carrega os TADs
     BDTimes *bdt = bdt_criar();
     if (!bdt) {
         fprintf(stderr, "Erro ao criar BDTimes.\n");

@@ -76,8 +76,8 @@ void time_adicionar_resultados(Time *t, int gols_pro, int gols_contra) {
 
 void time_imprimir(Time *t) {
     if (t == NULL) return;
-    
-    printf("%d\t%-15s\t\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+
+    printf("%-4d %-12s %3d %3d %3d %4d %4d %4d %4d\n",
         t->id,
         t->nome,
         t->vitorias,

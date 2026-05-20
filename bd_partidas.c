@@ -65,28 +65,48 @@ int bdp_carregar(BDPartidas *bdp, const char *arquivo, BDTimes *bdt) {
 
 void bdp_consultar_partidas(BDPartidas *bdp, BDTimes *bdt, const char *termo) {
     if (bdp == NULL || bdt == NULL) return;
-    
-    int i;
-    int encontrou = 0;
-    
+
+    /* Interpreta prefixos de modo: "M:<nome>", "V:<nome>" ou "<nome>" (ambos) */
+    int modo = 3; /* 1=mandante, 2=visitante, 3=ambos */
+    const char *busca = termo;
+
+    if (termo != NULL) {
+        if (strncmp(termo, "M:", 2) == 0) { modo = 1; busca = termo + 2; }
+        else if (strncmp(termo, "V:", 2) == 0) { modo = 2; busca = termo + 2; }
+    }
+
+    int i, encontrou = 0;
+
+    printf("\n%-4s %-12s %-12s\n", "ID", "Time1", "Time2");
+    printf("--------------------------------------\n");
+
     for (i = 0; i < bdp->qtd; i++) {
         Partida *p = bdp->partidas[i];
-        
-        // Pega os times para mostrar os nomes
+
         Time *t1 = bdt_buscar_por_id(bdt, partida_get_time1(p));
         Time *t2 = bdt_buscar_por_id(bdt, partida_get_time2(p));
-        
+
         char *nome1 = time_get_nome(t1);
         char *nome2 = time_get_nome(t2);
-        
-        // Se não houver busca (termo NULL) ou se o nome de um dos times começar com o termo
-        if (termo == NULL || is_prefixo(nome1, termo) || is_prefixo(nome2, termo)) {
+
+        int bate = 0;
+        if (busca == NULL) {
+            bate = 1;
+        } else if (modo == 1) {
+            bate = is_prefixo(nome1, busca);
+        } else if (modo == 2) {
+            bate = is_prefixo(nome2, busca);
+        } else {
+            bate = is_prefixo(nome1, busca) || is_prefixo(nome2, busca);
+        }
+
+        if (bate) {
             partida_imprimir(p, bdt);
             encontrou = 1;
         }
     }
-    
-    if (encontrou == 0) {
+
+    if (!encontrou) {
         printf("Erro: Nenhuma partida encontrada.\n");
     }
 }
