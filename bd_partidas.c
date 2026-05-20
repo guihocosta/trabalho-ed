@@ -81,9 +81,7 @@ void bdp_consultar_partidas(BDPartidas *bdp, BDTimes *bdt, int modo, const char 
     int i, encontrou = 0;
     int w = bdp_calcular_largura_times(bdt);
 
-    printf("\n%-4s %-*s %-*s\n", "ID", w, "Mandante", w, "Visitante");
-    for (int i = 0; i < (w * 2) + 12; i++) printf("-");
-    printf("\n");
+    printf("\n%-4s %-*s %-*s\n", "ID", w, "Time1", w, "Time2");
 
     for (i = 0; i < bdp->qtd; i++) {
         Partida *p = bdp->partidas[i];

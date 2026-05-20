@@ -113,10 +113,6 @@ void bdt_imprimir_tabela(BDTimes *bdt) {
 
     printf("\n%-4s %-*s %3s %3s %3s %4s %4s %4s %4s\n",
            "ID", w, "Time", "V", "E", "D", "GM", "GS", "S", "PG");
-    
-    // Imprime a linha separadora com o tamanho correto
-    for (int i = 0; i < w + 42; i++) printf("-");
-    printf("\n");
 
     for (int i = 0; i < bdt->qtd; i++) {
         time_imprimir(bdt->times[i], w);
@@ -131,9 +127,6 @@ void bdt_consultar_times(BDTimes *bdt, const char *termo) {
 
     printf("\n%-4s %-*s %3s %3s %3s %4s %4s %4s %4s\n",
            "ID", w, "Time", "V", "E", "D", "GM", "GS", "S", "PG");
-    
-    for (int i = 0; i < w + 42; i++) printf("-");
-    printf("\n");
 
     for (int i = 0; i < bdt->qtd; i++) {
         char *nome = time_get_nome(bdt->times[i]);

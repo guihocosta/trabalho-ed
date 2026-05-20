@@ -72,9 +72,14 @@ int main(int argc, char *argv[]) {
             // Opção 2: CONSULTAR PARTIDAS
             else if (opcao == '2') {
                 int modo;
-                printf("\nEscolha o modo (1-Mandante, 2-Visitante, 3-Ambos): ");
+                printf("\nEscolha o modo de consulta:\n");
+                printf("1 - Por time mandante\n");
+                printf("2 - Por time visitante\n");
+                printf("3 - Por time mandante ou visitante\n");
+                printf("4 - Retornar ao menu principal\n");
                 if (scanf("%d", &modo) == 1) {
-                    printf("Digite o nome ou prefixo: ");
+                    if (modo == 4) continue;
+                    printf("Digite o nome: ");
                     scanf("%s", entrada);
                     bdp_consultar_partidas(bdp, bdt, modo, entrada);
                 } else {
@@ -85,6 +90,7 @@ int main(int argc, char *argv[]) {
             
             // Opção 6: IMPRIMIR TABELA
             else if (opcao == '6') {
+                printf("\nImprimindo classificacao...\n");
                 bdt_imprimir_tabela(bdt);
             } 
             
