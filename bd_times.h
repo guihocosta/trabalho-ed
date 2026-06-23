@@ -30,4 +30,16 @@ void bdt_consultar_times(BDTimes *bdt, const char *termo);
 /* Retorna a largura do maior nome para alinhamento */
 int bdt_get_largura_nome_max(BDTimes *bdt);
 
+/* Salva a tabela de classificação ordenada em um arquivo CSV */
+void bdt_salvar_classificacao(BDTimes *bdt, const char *arquivo);
+
+/* Declaração opaca para evitar inclusão circular */
+typedef struct bd_partidas BDPartidas;
+
+/* Recalcula as estatísticas de todos os times com base nas partidas */
+void bdt_recalcular_estatisticas(BDTimes *bdt, BDPartidas *bdp);
+
+/* Lista todos os times com seus respectivos IDs formatados */
+void bdt_listar_ids(BDTimes *bdt);
+
 #endif
