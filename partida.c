@@ -36,7 +36,11 @@ void partida_free(Partida *p) {
     }
 }
 
-/* Getters usados por outros módulos */
+/* Getters e Setters */
+int partida_get_id(Partida *p) {
+    return p->id;
+}
+
 int partida_get_time1(Partida *p) {
     if (p == NULL) {
         return -1;
@@ -51,6 +55,19 @@ int partida_get_time2(Partida *p) {
     return p->time2_id;
 }
 
+int partida_get_gols1(Partida *p) {
+    return p->gols1;
+}
+
+int partida_get_gols2(Partida *p) {
+    return p->gols2;
+}
+
+void partida_set_placar(Partida *p, int g1, int g2) {
+    p->gols1 = g1;
+    p->gols2 = g2;
+}
+
 /* Imprime placar formatado buscando nomes no banco de times */
 void partida_imprimir(Partida *p, BDTimes *bdt, int largura_nome) {
     if (p == NULL || bdt == NULL) {
@@ -60,16 +77,8 @@ void partida_imprimir(Partida *p, BDTimes *bdt, int largura_nome) {
     Time *t1 = bdt_buscar_por_id(bdt, p->time1_id);
     Time *t2 = bdt_buscar_por_id(bdt, p->time2_id);
 
-    char *nome1 = time_get_nome(t1);
-    char *nome2 = time_get_nome(t2);
-
-    /* Se o time não for encontrado, usa "Desconhecido" */
-    if (nome1 == NULL) {
-        nome1 = "Desconhecido";
-    }
-    if (nome2 == NULL) {
-        nome2 = "Desconhecido";
-    }
+    char *nome1 = t1 ? time_get_nome(t1) : "Desconhecido";
+    char *nome2 = t2 ? time_get_nome(t2) : "Desconhecido";
 
     printf("%-4d ", p->id);
 
@@ -78,8 +87,13 @@ void partida_imprimir(Partida *p, BDTimes *bdt, int largura_nome) {
     for (i = tam1; i < largura_nome; i++) {
         printf(" ");
     }
+    printf(" ");
 
-    printf(" %d x %-d ", p->gols1, p->gols2);
+    printf("%s", nome2);
+    int tam2 = tamanho_texto(nome2);
+    for (i = tam2; i < largura_nome; i++) {
+        printf(" ");
+    }
 
-    printf("%s\n", nome2);
+    printf(" %7d %7d\n", p->gols1, p->gols2);
 }
