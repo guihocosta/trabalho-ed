@@ -101,7 +101,7 @@ Exclui uma partida da lista encadeada por ID. Após confirmação, remove o nó 
 Adiciona um novo jogo solicitando as informações linha a linha (ID do time mandante, ID do time visitante, gols do mandante e gols do visitante). O sistema valida a existência dos times, impede confrontos de uma equipe consigo mesma, autoincrementa o ID da partida e recalcula a tabela.
 
 #### Opção 6 — Imprimir tabela de classificação
-Imprime todas as equipes ordenadas decrescentemente por mérito esportivo, usando os critérios oficiais de desempate: **Pontos Ganhos (PG) → Vitórias (V) → Saldo de Gols (S)**.
+Imprime todas as equipes ordenadas decrescentemente por mérito esportivo, usando os 7 critérios oficiais de desempate em ordem de prioridade: **PG → V → S → GM → GS → E → D**.
 
 #### Q — Sair
 Gera os arquivos de saída finais e limpa toda a memória dinâmica:
