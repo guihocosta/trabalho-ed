@@ -38,6 +38,7 @@ void partida_free(Partida *p) {
 
 /* Getters e Setters */
 int partida_get_id(Partida *p) {
+    if (p == NULL) return -1;
     return p->id;
 }
 
@@ -56,14 +57,17 @@ int partida_get_time2(Partida *p) {
 }
 
 int partida_get_gols1(Partida *p) {
+    if (p == NULL) return -1;
     return p->gols1;
 }
 
 int partida_get_gols2(Partida *p) {
+    if (p == NULL) return -1;
     return p->gols2;
 }
 
 void partida_set_placar(Partida *p, int g1, int g2) {
+    if (p == NULL) return;
     p->gols1 = g1;
     p->gols2 = g2;
 }
