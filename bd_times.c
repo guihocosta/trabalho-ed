@@ -155,6 +155,22 @@ static int comparar_times(const void *a, const void *b) {
         return s2 - s1;
     }
     
+    int gm1 = time_get_gols_marcados(t1);
+    int gm2 = time_get_gols_marcados(t2);
+    if (gm1 != gm2) return gm2 - gm1;
+
+    int gs1 = time_get_gols_sofridos(t1);
+    int gs2 = time_get_gols_sofridos(t2);
+    if (gs1 != gs2) return gs1 - gs2;
+
+    int e1 = time_get_empates(t1);
+    int e2 = time_get_empates(t2);
+    if (e1 != e2) return e2 - e1;
+
+    int d1 = time_get_derrotas(t1);
+    int d2 = time_get_derrotas(t2);
+    if (d1 != d2) return d1 - d2;
+
     return time_get_id(t1) - time_get_id(t2);
 }
 
