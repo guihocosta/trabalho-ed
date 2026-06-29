@@ -43,7 +43,7 @@ make compile
 
 #### Executar
 
-O sistema aceita o arquivo de partidas como argumento opcional. Se nenhum for passado, usa `partidas_completo.csv` por padrão.
+O sistema aceita o arquivo de partidas como argumento opcional. Se nenhum for passado, usa `partidas_completo.csv` por padrão. Ao sair com `Q`, as partidas em memória são sempre salvas em `bd_partidas.csv` e a classificação ordenada em `bd_classificacao.csv`, independente do arquivo carregado.
 
 ```bash
 # Executando com o cenário padrão (partidas_completo.csv)
@@ -120,12 +120,8 @@ Gera os arquivos de saída finais e limpa toda a memória dinâmica:
 - **`BDPartidas`**: Gerencia a lista de partidas na memória utilizando uma lista simplesmente encadeada (`BDPNode`).
 - **`bdp_gerar_novo_id`**: Realiza o autoincremento localizando o maior ID corrente uma única vez e, após isso, controlando a numeração sequencial um a um com o auxílio de variáveis `static`.
 
-### Principais decisões de projeto e Clean Code (Parte II)
-
-- **Lista Encadeada Direta com Ponteiro `last` (Inserção no Fim)**: Implementamos as listas encadeadas diretamente nos módulos de banco de dados (`BDTNode` e `BDPNode`) com suporte a ponteiros para o primeiro (`first`) e último (`last`) nó. Isso eliminou a necessidade de structs genéricas (`void*`), evitou casts, e permitiu fazer o append de novos elementos com complexidade constante $O(1)$, mantendo a ordem original dos arquivos CSV ao carregar, exibir e salvar os dados.
-- **Responsabilidade Única e Desacoplamento**: Os módulos mantêm limites bem definidos de acesso a dados. O banco de partidas trata exclusivamente de dados de confrontos, enquanto o banco de times lida com a totalização de mérito.
-- **Remoção de Duplicação e Código Morto (DRY)**: Funções redundantes na busca/salvamento foram retiradas, e fluxos duplicados de consulta para deleção/edição em `main.c` foram unificados em funções estáticas auxiliares.
-- **Liberação Completa de Recursos**: O encerramento seguro (Opção Q) garante a liberação de cada nó encadeado, evitando *memory leaks*.
+### Principais decisões de projeto (Parte II)
+- **Lista Encadeada Direta com Ponteiro `last` (Inserção no Fim)**: Implementamos as listas encadeadas diretamente nos módulos de banco de dados (`BDTNode` e `BDPNode`) com suporte a ponteiros para o primeiro (`first`) e último (`last`) nó.
 
 ---
 
